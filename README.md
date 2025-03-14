@@ -9,4 +9,4 @@ LOCATING OBJECTS USING THE HAUSDORFF DISTANCE
 2. **Run**:
 
     ```bash
-     ./object_detection scene.jpg object.jpg
+    ./object_detection scene.jpg object.jpg
