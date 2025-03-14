@@ -4,9 +4,9 @@ LOCATING OBJECTS USING THE HAUSDORFF DISTANCE
 
 1. **Compile**:
    ```bash
-   gcc -o object_detection_fast object_detection_fast.c -lm
+   gcc -o object_detection object_detection.c -lm
 
 2. **Run**:
 
     ```bash
-     ./object_detection_fast scene.jpg object.jpg
+     ./object_detection scene.jpg object.jpg
