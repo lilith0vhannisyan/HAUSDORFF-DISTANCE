@@ -7,9 +7,6 @@
 #include <float.h>
 #include <string.h>
 
-// -----------------------------------------------------------------------------
-// Data Structures
-// -----------------------------------------------------------------------------
 
 typedef struct {
     float x;
@@ -26,10 +23,7 @@ typedef struct {
     float ty;  // translation in y
 } Transformation;
 
-// -----------------------------------------------------------------------------
 // Image Loading (Grayscale) via stb_image
-// -----------------------------------------------------------------------------
-
 unsigned char* loadImage(const char *filename, int *width, int *height) {
     int channels_in_file;
     unsigned char *data = stbi_load(filename, width, height, &channels_in_file, 1);
@@ -40,10 +34,7 @@ unsigned char* loadImage(const char *filename, int *width, int *height) {
     return data;
 }
 
-// -----------------------------------------------------------------------------
 // Sobel Edge Detection
-// -----------------------------------------------------------------------------
-
 void sobelEdgeDetector(const unsigned char *img, int width, int height,
                        unsigned char *edgeOutput, float threshold)
 {
@@ -85,10 +76,7 @@ void sobelEdgeDetector(const unsigned char *img, int width, int height,
     }
 }
 
-// -----------------------------------------------------------------------------
 // Convert Edge Map to Point Cloud
-// -----------------------------------------------------------------------------
-
 typedef struct {
     Point *points;
     int numPoints;
@@ -117,25 +105,21 @@ PointCloud createPointCloudFromEdges(const unsigned char *edgeMap, int width, in
     return pc;
 }
 
-// -----------------------------------------------------------------------------
-// Compute Distance Transform (2D) for the scene edge map
-// -----------------------------------------------------------------------------
 
-/*
-    We compute the distance transform using a common two-pass algorithm:
+// Compute Distance Transform (2D) for the scene edge map
+/*  We compute the distance transform using a common two-pass algorithm:
     1) Forward pass (top-left to bottom-right)
     2) Backward pass (bottom-right to top-left)
     
     Each pixel gets the distance to the nearest edge pixel (0 if it's an edge).
-    We'll store distances in a float array distMap[width*height].
-*/
+    We'll store distances in a float array distMap[width*height].*/
 
 static inline float minf(float a, float b) { return (a < b) ? a : b; }
 
 void computeDistanceTransform(const unsigned char *edgeMap, int width, int height, float *distMap) {
     // Initialize distMap
     // If it's an edge pixel => distance = 0
-    // Otherwise => large number (e.g., width+height)
+    // Otherwise => large number
     float maxDist = (float)(width + height);
     for (int i = 0; i < width * height; i++) {
         distMap[i] = (edgeMap[i] == 255) ? 0.0f : maxDist;
@@ -186,12 +170,8 @@ void computeDistanceTransform(const unsigned char *edgeMap, int width, int heigh
     }
 }
 
-// -----------------------------------------------------------------------------
 // Directed Hausdorff Distance Using the Scene's Distance Transform
-// -----------------------------------------------------------------------------
-
-/*
-    For each point in the transformed model, we look up its distance
+/*  For each point in the transformed model, we look up its distance
     in the scene's distMap. Then we take the maximum of these distances.
 */
 
@@ -218,10 +198,7 @@ float directedHausdorffUsingDT(PointCloud model, float *distMap, int sceneWidth,
     return maxDist;
 }
 
-// -----------------------------------------------------------------------------
 // Simple Translation Search Using Distance Transform
-// -----------------------------------------------------------------------------
-
 PointCloud translatePointCloud(PointCloud pc, float tx, float ty) {
     PointCloud result;
     result.numPoints = pc.numPoints;
@@ -261,10 +238,6 @@ void findBestTranslationDT(PointCloud objectPC, float *sceneDistMap,
     printf("Best Score = %f at translation (%.2f, %.2f)\n", bestScore, bestTx, bestTy);
 }
 
-// -----------------------------------------------------------------------------
-// Main
-// -----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
@@ -293,7 +266,7 @@ int main(int argc, char *argv[])
     unsigned char *sceneEdges = (unsigned char *)calloc(sw*sh, sizeof(unsigned char));
     unsigned char *objectEdges = (unsigned char *)calloc(ow*oh, sizeof(unsigned char));
     
-    float threshold = 100.0f; // adjust as needed
+    float threshold = 100.0f;
     sobelEdgeDetector(sceneData, sw, sh, sceneEdges, threshold);
     sobelEdgeDetector(objectData, ow, oh, objectEdges, threshold);
     
